@@ -27,14 +27,29 @@ const Login = () => {
   const handleLogin = async () => {
     try {
       const { data } = await login({ variables: { email, password } });
+      const { role, token, email: userEmail, username, id } = data.login;
 
-      await AsyncStorage.setItem('token', data.login.token);
-      await AsyncStorage.setItem('userRole', data.login.role);
-      await AsyncStorage.setItem('email', data.login.email);
-      await AsyncStorage.setItem('username', data.login.username);
-      await AsyncStorage.setItem('id', data.login.id);
+      // Store data in AsyncStorage
+      await AsyncStorage.setItem('token', token);
+      await AsyncStorage.setItem('userRole', role);
+      await AsyncStorage.setItem('email', userEmail);
+      await AsyncStorage.setItem('username', username);
+      await AsyncStorage.setItem('id', id);
 
-      router.push('/ProjectManager'); // Redirect to Dashboard
+      // Redirect based on role
+      switch (role) {
+        case 'Project_Manager':
+          router.push('/ProjectManager');
+          break;
+        case 'Team_Lead':
+          router.push('/TeamLead');
+          break;
+        case 'Team_Member':
+          router.push('/TeamMember');
+          break;
+        default:
+          console.error('Unknown role:', role);
+      }
     } catch (err) {
       console.error('Login error:', err);
     }
