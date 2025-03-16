@@ -27,7 +27,6 @@ const Signup = () => {
   const [loading, setLoading] = useState(false);
 
   const router = useRouter();
-
   const [signupMutation] = useMutation(SIGNUP_MUTATION);
 
   const handleSignup = async () => {
@@ -45,20 +44,29 @@ const Signup = () => {
       await AsyncStorage.setItem('token', user.token);
       await AsyncStorage.setItem('userRole', user.role);
       await AsyncStorage.setItem('username', user.username);
-      await AsyncStorage.setItem('id', user.id); 
-      await AsyncStorage.setItem('id', user.email);
+      await AsyncStorage.setItem('email', user.email);
+      await AsyncStorage.setItem('id', user.id);
 
-      router.push('/ProjectManager'); // Redirect to Dashboard
+      // Redirect based on role
+      switch (user.role) {
+        case 'Project_Manager':
+          router.push('/ProjectManager');
+          break;
+        case 'Team_Lead':
+          router.push('/TeamLead');
+          break;
+        case 'Team_Member':
+          router.push('/TeamMember');
+          break;
+        default:
+          console.warn('Unknown role:', user.role);
+      }
     } catch (err) {
       console.error('Signup error:', err);
       setError(err.message);
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleLoginRedirect = () => {
-    router.push('/login');
   };
 
   return (
@@ -110,7 +118,7 @@ const Signup = () => {
 
       <Text className="mt-4 text-gray-500">
         Already have an account?{' '}
-        <TouchableOpacity onPress={handleLoginRedirect}>
+        <TouchableOpacity onPress={() => router.push('/login')}>
           <Text className="text-blue-600">Log In</Text>
         </TouchableOpacity>
       </Text>
