@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity, FlatList, ActivityIndicator, Animated } from 'react-native';
 import React, { useEffect, useRef } from 'react';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { useQuery, gql } from '@apollo/client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -48,6 +48,20 @@ const WelcomeScreen = () => {
     extrapolate: 'clamp',
   });
 
+  const { loading, error, data, refetch } = useQuery(GET_MANAGER_PROJECTS, {
+    variables: { managerId },
+    skip: !managerId,
+  });
+
+  // Refetch data when screen comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      if (managerId) {
+        refetch();
+      }
+    }, [managerId, refetch])
+  );
+
   useEffect(() => {
     const getManagerId = async () => {
       const id = await AsyncStorage.getItem('id');
@@ -56,13 +70,8 @@ const WelcomeScreen = () => {
     getManagerId();
   }, []);
 
-  const { loading, error, data, refetch } = useQuery(GET_MANAGER_PROJECTS, {
-    variables: { managerId },
-    skip: !managerId,
-  });
-
   const handleNewProject = () => {
-    router.push('/ProjectManager/(drawer)/');
+    router.push('/ProjectManager/(drawer)/createProject');
   };
 
   if (!managerId) return (
@@ -82,10 +91,13 @@ const WelcomeScreen = () => {
           <ActivityIndicator size="large" color="#007AFF" />
         </View>
       ) : error ? (
-        <View className="flex-1 justify-center items-center">
+        <View className="flex-1 justify-center items-center p-4">
           <Text className="text-red-500 text-base mb-2">Error loading projects</Text>
-          <TouchableOpacity onPress={() => refetch()}>
-            <Text className="text-blue-600 text-sm">Tap to retry</Text>
+          <TouchableOpacity 
+            onPress={() => refetch()}
+            className="bg-blue-600 px-6 py-2 rounded-lg"
+          >
+            <Text className="text-white">Retry</Text>
           </TouchableOpacity>
         </View>
       ) : (
