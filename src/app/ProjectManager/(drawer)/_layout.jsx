@@ -11,8 +11,9 @@ const CustomDrawerContent = (props) => {
        <DrawerItem label="Settings" onPress={() => router.push('./(tabs)/settings')} />
        <DrawerItem 
            label="Contact" 
-           onPress={() => router.push('/ProjectManager/contact')} 
+           onPress={() => router.push('/ProjectManager/(drawer)/contact')} 
        />
+       <DrawerItem label="Create Project" onPress={() => router.push('/ProjectManager/(drawer)/CreateProject')} />
     </DrawerContentScrollView>
     );
 };

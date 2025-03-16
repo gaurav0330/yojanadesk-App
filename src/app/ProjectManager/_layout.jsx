@@ -9,7 +9,7 @@ const ManagerLayout = () => {
     <ApolloProvider client={client}>
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(drawer)"/>
-        <Stack.Screen name="contact" />
+       
       </Stack>
     </ApolloProvider>
   );

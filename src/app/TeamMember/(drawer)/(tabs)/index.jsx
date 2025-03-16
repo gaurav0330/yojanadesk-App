@@ -1,78 +1,68 @@
-import { Text, View, ActivityIndicator, TouchableOpacity } from 'react-native';
-import React, { useEffect, useState } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useRouter } from 'expo-router';
+import React from 'react';
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 
-const Dashboard = () => {
-  const [userData, setUserData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const router = useRouter();
-
-  const fetchUserData = async () => {
-    try {
-      const token = await AsyncStorage.getItem('token');
-      const username = await AsyncStorage.getItem('username');
-      const role = await AsyncStorage.getItem('userRole');
-      const id = await AsyncStorage.getItem('id');
-      const email = await AsyncStorage.getItem('email'); // Optional
-
-      if (token && username && role && id) {
-        setUserData({ token, username, role, id, email });
-      } else {
-        // Redirect to login if token is not found
-        router.replace('/login');
-      }
-    } catch (err) {
-      console.error('Error fetching user data:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleLogout = async () => {
-    try {
-      await AsyncStorage.clear(); // Clear all stored data
-      router.replace('/login'); // Redirect to login page
-    } catch (err) {
-      console.error('Error during logout:', err);
-    }
-  };
-
-  useEffect(() => {
-    fetchUserData();
-  }, []);
-
-  if (loading) {
-    return (
-      <View className="flex-1 items-center justify-center bg-white">
-        <ActivityIndicator size="large" color="#0000ff" />
-      </View>
-    );
-  }
+export default function Dashboard() {
+  const stats = [
+    { title: 'Active Projects', count: 5, icon: 'folder', color: '#3B82F6' },
+    { title: 'Pending Tasks', count: 12, icon: 'list', color: '#F59E0B' },
+    { title: 'Completed Tasks', count: 8, icon: 'checkmark-circle', color: '#10B981' },
+  ];
 
   return (
-    <View className="flex-1 items-center justify-center bg-gray-100 p-6">
-      <Text className="text-4xl font-bold text-blue-600 mb-8">User Dashboard</Text>
+    <ScrollView className="flex-1 bg-gray-50">
+      <View className="px-4 py-4 bg-white border-b border-gray-200">
+        <Text className="text-xl font-bold text-gray-800">Dashboard</Text>
+      </View>
 
-      {userData ? (
-        <>
-          <Text className="text-lg text-gray-800 mb-4">Username: {userData.username}</Text>
-          <Text className="text-lg text-gray-800 mb-4">Role: {userData.role}</Text>
-          <Text className="text-lg text-gray-800 mb-4">User ID: {userData.id}</Text>
-          <Text className="text-lg text-gray-800 mb-6">Email: {userData.email || 'N/A'}</Text>
+      <View className="p-4">
+        <View className="flex-row flex-wrap justify-between">
+          {stats.map((item, index) => (
+            <TouchableOpacity
+              key={index}
+              className="w-[48%] bg-white rounded-xl p-4 mb-4 shadow-sm"
+              onPress={() => router.push(item.title.toLowerCase().includes('project') ? './projects' : './tasks')}
+            >
+              <View className="flex-row items-center justify-between mb-2">
+                <Ionicons name={item.icon} size={24} color={item.color} />
+                <Text className="text-2xl font-bold" style={{ color: item.color }}>
+                  {item.count}
+                </Text>
+              </View>
+              <Text className="text-sm text-gray-600">{item.title}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
 
-          <TouchableOpacity
-            className="bg-red-500 px-6 py-3 rounded-lg"
-            onPress={handleLogout}
-          >
-            <Text className="text-white font-semibold text-lg">Logout</Text>
-          </TouchableOpacity>
-        </>
-      ) : (
-        <Text className="text-lg text-gray-500">No user data found</Text>
-      )}
-    </View>
+        <View className="mt-4">
+          <View className="flex-row justify-between items-center mb-4">
+            <Text className="text-lg font-semibold text-gray-800">Recent Projects</Text>
+            <TouchableOpacity onPress={() => router.push('./projects')}>
+              <Text className="text-sm text-blue-500">View All</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Placeholder for recent projects */}
+          <View className="bg-white rounded-xl p-4 shadow-sm">
+            <Text className="text-gray-600">Loading recent projects...</Text>
+          </View>
+        </View>
+
+        <View className="mt-4">
+          <View className="flex-row justify-between items-center mb-4">
+            <Text className="text-lg font-semibold text-gray-800">Upcoming Tasks</Text>
+            <TouchableOpacity onPress={() => router.push('./tasks')}>
+              <Text className="text-sm text-blue-500">View All</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Placeholder for upcoming tasks */}
+          <View className="bg-white rounded-xl p-4 shadow-sm">
+            <Text className="text-gray-600">Loading upcoming tasks...</Text>
+          </View>
+        </View>
+      </View>
+    </ScrollView>
   );
-};
-
-export default Dashboard;
+}

@@ -1,21 +1,62 @@
-import FontAwesome from '@expo/vector-icons/FontAwesome';
+import React from 'react';
 import { Tabs } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function TabLayout() {
   return (
-    <Tabs screenOptions={{ tabBarActiveTintColor: 'blue', headerShown: false }}>
+    <Tabs
+      screenOptions={{
+        tabBarActiveTintColor: '#3B82F6',
+        tabBarInactiveTintColor: '#6B7280',
+        tabBarStyle: {
+          backgroundColor: '#ffffff',
+          borderTopWidth: 1,
+          borderTopColor: '#E5E7EB',
+          height: 60,
+          paddingBottom: 8,
+          paddingTop: 8,
+        },
+        headerShown: false,
+        tabBarShowLabel: true,
+        tabBarLabelStyle: {
+          fontSize: 12,
+        },
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <FontAwesome size={28} name="home" color={color} />,
+          title: 'Dashboard',
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="home" size={24} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="projects"
+        options={{
+          title: 'Projects',
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="folder" size={24} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="tasks"
+        options={{
+          title: 'Tasks',
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="list" size={24} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
           title: 'Settings',
-          tabBarIcon: ({ color }) => <FontAwesome size={28} name="cog" color={color} />,
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="settings" size={24} color={color} />
+          ),
         }}
       />
     </Tabs>
