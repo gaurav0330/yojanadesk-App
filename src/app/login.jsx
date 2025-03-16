@@ -20,37 +20,61 @@ const LOGIN_MUTATION = gql`
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
   const router = useRouter();
 
-  const [login, { loading, error }] = useMutation(LOGIN_MUTATION);
+  const [login, { loading }] = useMutation(LOGIN_MUTATION, {
+    onError: (error) => {
+      setErrorMsg(error.message || 'Login failed. Please try again.');
+      console.error('Login error:', error);
+    }
+  });
 
   const handleLogin = async () => {
+    if (!email || !password) {
+      setErrorMsg('Please enter both email and password');
+      return;
+    }
+    
+    setErrorMsg('');
     try {
-      const { data } = await login({ variables: { email, password } });
+      const { data } = await login({ 
+        variables: { email, password },
+        fetchPolicy: 'network-only' // Ensures fresh data
+      });
+      
+      if (!data?.login) {
+        setErrorMsg('Invalid credentials');
+        return;
+      }
+
       const { role, token, email: userEmail, username, id } = data.login;
 
-      // Store data in AsyncStorage
-      await AsyncStorage.setItem('token', token);
-      await AsyncStorage.setItem('userRole', role);
-      await AsyncStorage.setItem('email', userEmail);
-      await AsyncStorage.setItem('username', username);
-      await AsyncStorage.setItem('id', id);
+      // Store all data in parallel for better performance
+      await Promise.all([
+        AsyncStorage.setItem('token', token),
+        AsyncStorage.setItem('userRole', role),
+        AsyncStorage.setItem('email', userEmail),
+        AsyncStorage.setItem('username', username),
+        AsyncStorage.setItem('id', id)
+      ]);
 
-      // Redirect based on role
+      // Use replace instead of push for faster navigation
       switch (role) {
         case 'Project_Manager':
-          router.push('/ProjectManager');
+          router.replace('/ProjectManager/welcome');
           break;
         case 'Team_Lead':
-          router.push('/TeamLead');
+          router.replace('/TeamLead');
           break;
         case 'Team_Member':
-          router.push('/TeamMember');
+          router.replace('/TeamMember');
           break;
         default:
-          console.error('Unknown role:', role);
+          setErrorMsg('Unknown role: ' + role);
       }
     } catch (err) {
+      setErrorMsg('Network error. Please check your connection.');
       console.error('Login error:', err);
     }
   };
@@ -63,28 +87,45 @@ const Login = () => {
         className="w-full border-2 border-gray-300 rounded-md p-3 mb-4"
         placeholder="Email"
         value={email}
-        onChangeText={setEmail}
+        onChangeText={(text) => {
+          setEmail(text);
+          setErrorMsg('');
+        }}
         keyboardType="email-address"
         autoCapitalize="none"
+        editable={!loading}
       />
 
       <TextInput
         className="w-full border-2 border-gray-300 rounded-md p-3 mb-6"
         placeholder="Password"
         value={password}
-        onChangeText={setPassword}
+        onChangeText={(text) => {
+          setPassword(text);
+          setErrorMsg('');
+        }}
         secureTextEntry
+        editable={!loading}
       />
 
       {loading ? (
-        <ActivityIndicator size="large" color="#0000ff" className="mb-6" />
+        <View className="items-center">
+          <ActivityIndicator size="large" color="#0000ff" className="mb-2" />
+          <Text className="text-gray-600">Logging in...</Text>
+        </View>
       ) : (
         <MyButton title="Login" onPress={handleLogin} />
       )}
 
-      {error && <Text className="text-red-500 mt-2">{error.message}</Text>}
+      {errorMsg ? (
+        <Text className="text-red-500 mt-2 text-center">{errorMsg}</Text>
+      ) : null}
 
-      <TouchableOpacity onPress={() => router.push('/signup')} className="mt-4">
+      <TouchableOpacity 
+        onPress={() => router.push('/signup')} 
+        className="mt-4"
+        disabled={loading}
+      >
         <Text className="text-blue-600">Don't have an account? Sign Up</Text>
       </TouchableOpacity>
     </View>
