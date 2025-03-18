@@ -1,7 +1,6 @@
 import React from 'react';
-import { View, Text } from 'react-native';
-
-const ProjectCard = ({ project }) => {
+import { View, Text, TouchableOpacity } from 'react-native';
+const ProjectCard = ({ project, onSelect }) => {
   // const formatDate = (dateString) => {
   //   return format(new Date(dateString), 'MMM dd, yyyy');
   // };
@@ -20,7 +19,10 @@ const ProjectCard = ({ project }) => {
   };
 
   return (
-    <View className="p-4 mx-4 my-2 bg-white shadow-md rounded-xl">
+    <TouchableOpacity 
+      onPress={() => onSelect(project)}
+      className="p-4 mx-4 my-2 bg-white shadow-md rounded-xl active:opacity-70"
+    >
       <View className="space-y-2">
         <Text className="text-lg font-bold text-gray-800">{project.title}</Text>
         <Text className="text-sm text-gray-600">{project.description}</Text>
@@ -45,7 +47,7 @@ const ProjectCard = ({ project }) => {
           </View>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 

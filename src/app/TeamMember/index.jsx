@@ -8,7 +8,7 @@ export default function TeamMemberIndex() {
     const checkRole = async () => {
       try {
         const role = await AsyncStorage.getItem('userRole');
-        console.log('Current role:', role);
+        
         
         if (role === 'Team_Member') {
           // Redirect to the drawer navigation
@@ -27,7 +27,7 @@ export default function TeamMemberIndex() {
   }, []);
 
   return (
-    <View className="flex-1 items-center justify-center bg-white">
+    <View className="items-center justify-center flex-1 bg-white">
       <ActivityIndicator size="large" color="#3B82F6" />
       <Text className="mt-4 text-gray-600">Loading Team Member Portal...</Text>
     </View>
