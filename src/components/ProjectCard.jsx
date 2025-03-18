@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, Text } from 'react-native';
-import { format } from 'date-fns';
 
 const ProjectCard = ({ project }) => {
   // const formatDate = (dateString) => {
