@@ -1,7 +1,5 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-
-
 const ProjectCard = ({ project, onSelect }) => {
   // const formatDate = (dateString) => {
   //   return format(new Date(dateString), 'MMM dd, yyyy');
