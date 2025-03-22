@@ -13,7 +13,7 @@ const RootLayout = () => {
   const checkAuthStatus = async () => {
     const token = await AsyncStorage.getItem('token');
     const role = await AsyncStorage.getItem('userRole');
-
+  
     if (token && role) {
       setIsAuthenticated(true);
       if (role === 'Project_Manager') {
