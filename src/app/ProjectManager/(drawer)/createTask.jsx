@@ -56,7 +56,7 @@ const ASSIGN_TASK = gql`
 `;
 
 const CreateTaskScreen = () => {
-  const { projectId, onTaskCreated } = useLocalSearchParams();
+  const { projectId } = useLocalSearchParams();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [assignedTo, setAssignedTo] = useState('');
@@ -75,10 +75,6 @@ const CreateTaskScreen = () => {
   const [assignTask, { loading: taskLoading }] = useMutation(ASSIGN_TASK, {
     onCompleted: (data) => {
       if (data.assignTask.success) {
-        // Call the refetch function if it exists
-        if (onTaskCreated) {
-          onTaskCreated();
-        }
         router.back();
       } else {
         setError(data.assignTask.message);
@@ -86,7 +82,7 @@ const CreateTaskScreen = () => {
     },
     onError: (error) => {
       setError(error.message);
-    },
+    }
   });
 
   const handleSubmit = () => {

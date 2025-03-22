@@ -2,7 +2,7 @@ import { View, Text, FlatList, TouchableOpacity, ActivityIndicator } from 'react
 import React, { useEffect, useState } from 'react';
 import { useQuery, gql } from '@apollo/client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useProject } from './_layout';
 
@@ -74,6 +74,13 @@ const TasksScreen = () => {
     skip: !managerId || !projectId,
   });
 
+  // Refresh tasks when screen comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      refetch();
+    }, [refetch])
+  );
+
   if (loading) {
     return (
       <View className="flex-1 justify-center items-center bg-white">
@@ -104,12 +111,7 @@ const TasksScreen = () => {
         <TouchableOpacity 
           onPress={() => router.push({
             pathname: '/ProjectManager/(drawer)/createTask',
-            params: { 
-              projectId,
-              onTaskCreated: () => {
-                refetch();
-              }
-            }
+            params: { projectId }
           })}
           className="flex-row items-center bg-blue-500 px-4 py-2 rounded-lg self-start"
         >
@@ -123,6 +125,8 @@ const TasksScreen = () => {
         renderItem={({ item }) => <TaskCard task={item} />}
         keyExtractor={item => item.id}
         contentContainerStyle={{ padding: 16 }}
+        onRefresh={refetch}
+        refreshing={loading}
         ListEmptyComponent={
           <View className="items-center mt-10">
             <Text className="text-lg font-semibold text-gray-800 mb-2">No tasks found</Text>
