@@ -1,7 +1,8 @@
 import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
 import React, { useState, useEffect } from 'react';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams, useFocusEffect } from 'expo-router';
 import { useQuery, gql, useApolloClient } from '@apollo/client';
+import { MaterialIcons } from '@expo/vector-icons';
 
 const GET_USER = gql`
   query GetUser($userId: ID!) {
@@ -95,6 +96,13 @@ const ProjectDetails = () => {
       });
     }
   });
+
+  // Add useFocusEffect to refetch data when screen comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      refetch();
+    }, [refetch])
+  );
 
   // Fetch team lead user data
   useEffect(() => {
@@ -254,7 +262,16 @@ const ProjectDetails = () => {
 
         {/* Team Leads */}
         <View>
-          <Text className="text-lg font-semibold text-gray-800 mb-2">Team Leads</Text>
+          <View className="flex-row justify-between items-center mb-2">
+            <Text className="text-lg font-semibold text-gray-800">Team Leads</Text>
+            <TouchableOpacity 
+              onPress={() => router.push(`/ProjectManager/(drawer)/assignTeamLeads/${id}`)}
+              className="bg-blue-600 px-4 py-2 rounded-lg flex-row items-center"
+            >
+              <MaterialIcons name="person-add" size={20} color="white" />
+              <Text className="text-white ml-2">Assign Team Leads</Text>
+            </TouchableOpacity>
+          </View>
           {teamLeads.length > 0 ? (
             teamLeads.map((lead, index) => (
               <TeamLeadCard

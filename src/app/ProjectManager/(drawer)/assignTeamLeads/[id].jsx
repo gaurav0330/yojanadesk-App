@@ -14,6 +14,17 @@ const GET_ALL_LEADS = gql`
   }
 `;
 
+const GET_PROJECT_TEAM_LEADS = gql`
+  query GetProjectTeamLeads($projectId: ID!) {
+    getProjectById(id: $projectId) {
+      teamLeads {
+        teamLeadId
+        leadRole
+      }
+    }
+  }
+`;
+
 const ASSIGN_TEAM_LEAD = gql`
   mutation AssignTeamLead($projectId: ID!, $teamLeads: [TeamLeadInput!]!) {
     assignTeamLead(projectId: $projectId, teamLeads: $teamLeads) {
@@ -30,11 +41,14 @@ const AssignTeamLeads = () => {
   const [error, setError] = useState('');
 
   const { loading: leadsLoading, data: leadsData, error: leadsError } = useQuery(GET_ALL_LEADS);
+  const { data: projectData } = useQuery(GET_PROJECT_TEAM_LEADS, {
+    variables: { projectId: id }
+  });
 
   const [assignTeamLead, { loading: assigning }] = useMutation(ASSIGN_TEAM_LEAD, {
     onCompleted: (data) => {
       if (data.assignTeamLead.success) {
-        router.replace(`/ProjectManager/(drawer)/project/${id}`);
+        router.back();
       } else {
         setError(data.assignTeamLead.message || 'Failed to assign team leads');
       }
@@ -135,7 +149,13 @@ const AssignTeamLeads = () => {
     );
   }
 
-  const filteredLeads = leadsData?.getAllLeads?.filter(lead => lead.role === 'Team_Lead') || [];
+  // Get currently assigned team lead IDs
+  const assignedLeadIds = projectData?.getProjectById?.teamLeads?.map(lead => lead.teamLeadId) || [];
+  
+  // Filter out already assigned leads
+  const availableLeads = leadsData?.getAllLeads?.filter(lead => 
+    lead.role === 'Team_Lead' && !assignedLeadIds.includes(lead.id)
+  ) || [];
 
   return (
     <View className="flex-1 bg-white p-4">
@@ -144,16 +164,22 @@ const AssignTeamLeads = () => {
         <Text className="text-gray-600">Select team leads and specify their roles</Text>
       </View>
 
-      {filteredLeads.length === 0 ? (
+      {availableLeads.length === 0 ? (
         <View className="flex-1 justify-center items-center">
-          <Text className="text-gray-600 text-center">
-            No team leads available to assign.
+          <Text className="text-gray-600 text-center text-lg">
+            All available team leads have been assigned to this project.
           </Text>
+          <TouchableOpacity 
+            className="mt-4 bg-blue-600 px-6 py-2 rounded-lg"
+            onPress={() => router.back()}
+          >
+            <Text className="text-white">Go Back</Text>
+          </TouchableOpacity>
         </View>
       ) : (
         <ScrollView className="flex-1">
           <View className="space-y-3">
-            {filteredLeads.map((lead) => {
+            {availableLeads.map((lead) => {
               const isSelected = selectedLeads.find(l => l.teamLeadId === lead.id);
               return (
                 <View key={lead.id} className="border-2 rounded-lg overflow-hidden">
@@ -191,29 +217,31 @@ const AssignTeamLeads = () => {
         <Text className="text-red-500 text-center my-2">{error}</Text>
       ) : null}
 
-      <View className="mt-4 space-y-3">
-        <TouchableOpacity
-          className={`py-3 rounded-lg ${assigning || filteredLeads.length === 0 ? 'bg-blue-400' : 'bg-blue-600'}`}
-          onPress={handleAssign}
-          disabled={assigning || filteredLeads.length === 0}
-        >
-          {assigning ? (
-            <ActivityIndicator color="white" />
-          ) : (
-            <Text className="text-white text-center font-semibold text-lg">
-              Assign Selected Leads
-            </Text>
-          )}
-        </TouchableOpacity>
+      {availableLeads.length > 0 && (
+        <View className="mt-4 space-y-3">
+          <TouchableOpacity
+            className={`py-3 rounded-lg ${assigning ? 'bg-blue-400' : 'bg-blue-600'}`}
+            onPress={handleAssign}
+            disabled={assigning}
+          >
+            {assigning ? (
+              <ActivityIndicator color="white" />
+            ) : (
+              <Text className="text-white text-center font-semibold text-lg">
+                Assign Selected Leads
+              </Text>
+            )}
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          className="py-3"
-          onPress={() => router.replace(`/ProjectManager/(drawer)/project/${id}`)}
-          disabled={assigning}
-        >
-          <Text className="text-blue-600 text-center">Skip for now</Text>
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity
+            className="py-3"
+            onPress={() => router.back()}
+            disabled={assigning}
+          >
+            <Text className="text-blue-600 text-center">Skip for now</Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 };
