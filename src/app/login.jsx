@@ -18,8 +18,8 @@ const LOGIN_MUTATION = gql`
 `;
 
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('@gmail.com');
+  const [password, setPassword] = useState('111111');
   const [errorMsg, setErrorMsg] = useState('');
   const router = useRouter();
 
@@ -65,7 +65,7 @@ const Login = () => {
           router.replace('/ProjectManager/welcome');
           break;
         case 'Team_Lead':
-          router.replace('/TeamLead');
+          router.replace('/TeamLead/welcome');
           break;
         case 'Team_Member':
           router.replace('/TeamMember');
