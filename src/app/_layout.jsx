@@ -19,7 +19,15 @@ const RootLayout = () => {
       if (role === 'Project_Manager') {
         router.replace('/ProjectManager/welcome');
       }
+      if (role === 'Team_Lead') {
+        router.replace('/TeamLead/welcome');
+      }
+      if (role === 'Team_Member') {
+        router.replace('/TeamMember/welcome');
+      }
     }
+
+    
   };
 
   useEffect(() => {
