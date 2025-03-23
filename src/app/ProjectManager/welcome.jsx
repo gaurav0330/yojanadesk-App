@@ -23,7 +23,10 @@ const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 const ProjectCard = ({ project }) => (
   <TouchableOpacity 
     className="bg-white rounded-xl p-4 mb-4 shadow-md border border-gray-100"
-    onPress={() => router.push(`/ProjectManager/(drawer)/project/${project.id}`)}
+    onPress={async () => {
+      await AsyncStorage.setItem('currentProjectId', project.id);
+      router.push(`/ProjectManager/(drawer)/project/${project.id}`);
+    }}
   >
     <Text className="text-lg font-semibold text-gray-800 mb-2">{project.title}</Text>
     <Text className="text-sm text-gray-600 mb-3" numberOfLines={2}>
@@ -66,6 +69,7 @@ const WelcomeScreen = () => {
     const getManagerId = async () => {
       const id = await AsyncStorage.getItem('id');
       setManagerId(id);
+      console.log(id);
     };
     getManagerId();
   }, []);
